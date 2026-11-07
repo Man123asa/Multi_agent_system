@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hold'em Royale</title>
+<style>
+:root{--felt:#0e5a3c;--felt2:#093d29;--wood:#3a1a14;--brass:#d2a64a;--ivory:#f7f1e1;--ink:#1b1b1b;--red:#b3262e;--bg:#120b0a;--panel:#1d1210;--muted:#b9a98d}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 50% 0,#2a1511,var(--bg) 70%);color:var(--ivory);font-family:"Trebuchet MS",system-ui,sans-serif;min-height:100vh}
+header{display:flex;align-items:center;gap:16px;padding:12px 20px;border-bottom:1px solid #3d2a20}
+h1{font:700 24px Georgia,serif;margin:0;color:var(--brass);letter-spacing:.5px;flex:1}
+header span{color:var(--muted);font-size:14px}
+button{font:inherit;cursor:pointer}
+.ghost{background:none;border:1px solid var(--brass);color:var(--brass);border-radius:6px;padding:6px 12px}
+.ghost:hover{background:var(--brass);color:var(--ink)}
+main{display:grid;grid-template-columns:1fr 250px;gap:16px;padding:16px 20px;max-width:1250px;margin:auto}
+.table{position:relative;aspect-ratio:16/10;border-radius:46% / 50%;border:16px solid var(--wood);background:radial-gradient(ellipse at 50% 40%,var(--felt),var(--felt2) 85%);box-shadow:0 0 0 3px var(--brass),inset 0 0 70px #0008,0 25px 50px #000a}
+.table:after{content:"";position:absolute;inset:7%;border:2px solid #d2a64a44;border-radius:46% / 50%;pointer-events:none}
+.center{position:absolute;left:50%;top:47%;transform:translate(-50%,-50%);text-align:center;width:60%}
+.pot{font:700 18px Georgia,serif;color:var(--brass);margin-bottom:8px;min-height:24px}
+.board{display:flex;gap:8px;justify-content:center}
+.slot{width:var(--cw);height:var(--ch);border:2px dashed #ffffff22;border-radius:8px}
+.msg{margin-top:12px;min-height:26px;font:italic 17px Georgia,serif}
+.msg.win{color:var(--brass);font-weight:700}
+.table{--cw:clamp(38px,6.4vw,64px);--ch:calc(var(--cw)*1.4)}
+.card{width:var(--cw);height:var(--ch);background:var(--ivory);color:var(--ink);border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;font:700 calc(var(--cw)*.36) Georgia,serif;box-shadow:0 3px 8px #0009;animation:deal .45s cubic-bezier(.2,.9,.3,1.1) both;line-height:1}
+.card i{font-style:normal;font-size:calc(var(--cw)*.5)}
+.card.red{color:var(--red)}
+.card.back{background:repeating-linear-gradient(45deg,#7a1b22 0 6px,#5c1218 6px 12px);border:3px solid var(--ivory)}
+.sm{--cw:clamp(30px,4.6vw,48px)}
+@keyframes deal{from{transform:translateY(-40px) rotate(-8deg);opacity:0}}
+.seat{position:absolute;width:30%;text-align:center}
+.s-You{left:35%;bottom:-6%}.s-Alpha{left:6%;top:3%}.s-Beta{right:6%;top:3%}
+.cards{display:flex;gap:5px;justify-content:center;min-height:calc(var(--ch)*.9)}
+.info{display:inline-block;margin-top:6px;padding:6px 14px;background:#120b0acc;border:2px solid #ffffff22;border-radius:999px;min-width:130px}
+.nm{font-weight:700;font-size:14px}.stk{color:var(--brass);font:700 14px Georgia,serif}
+.seat.turn .info{border-color:var(--brass);box-shadow:0 0 18px #d2a64a99}
+.seat.fold{opacity:.45}.seat.win .info{border-color:var(--brass);background:var(--brass);color:var(--ink)}.seat.win .stk,.seat.win .nm{color:var(--ink)}
+.out{filter:grayscale(1);opacity:.35}
+.bet{min-height:26px;margin-top:6px;font:700 13px Georgia,serif}
+.chip{display:inline-block;width:26px;height:26px;border-radius:50%;background:var(--red);border:3px dashed var(--ivory);vertical-align:middle;margin-right:5px;box-shadow:0 2px 4px #0008}
+.bubble{display:block;font:italic 13px Georgia,serif;color:var(--ivory);min-height:18px}
+.dealer{display:inline-block;background:var(--ivory);color:var(--ink);border-radius:50%;width:22px;height:22px;line-height:22px;font:700 12px Georgia;margin-left:6px;box-shadow:0 0 0 2px var(--brass)}
+aside{background:var(--panel);border:1px solid #3d2a20;border-radius:10px;padding:12px;max-height:620px;overflow:auto}
+aside h3{margin:0 0 8px;font:700 15px Georgia,serif;color:var(--brass)}
+aside ul{list-style:none;margin:0;padding:0;font-size:13px;line-height:1.5;color:#e4d8c0}
+aside li{padding:3px 0;border-bottom:1px solid #2c1d17}
+#bar{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;padding:34px 20px 24px;min-height:100px}
+.act{border:0;border-radius:8px;padding:13px 24px;font-weight:700;font-size:16px;min-width:120px;color:var(--ivory);box-shadow:0 3px 0 #0007}
+.act:active{transform:translateY(2px);box-shadow:none}
+.fold{background:#5b2b28}.call{background:#1d6b4a}.raise{background:var(--brass);color:var(--ink)}.next{background:var(--brass);color:var(--ink)}
+.rz{display:flex;gap:8px;align-items:center;background:var(--panel);padding:8px 12px;border-radius:10px;border:1px solid #3d2a20}
+.rz input{width:150px;accent-color:var(--brass)}.rz output{min-width:46px;font:700 16px Georgia,serif;color:var(--brass);text-align:right}
+.q{background:none;border:1px solid #6b5a44;color:var(--ivory);border-radius:6px;padding:5px 8px;font-size:12px}
+.q:hover{border-color:var(--brass)}
+.hint{width:100%;text-align:center;color:var(--muted);font-size:14px}
+button:focus-visible,input:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+@media(max-width:860px){main{grid-template-columns:1fr}.table{aspect-ratio:1/1.15;border-radius:30px;border-width:10px}.s-Alpha{left:0}.s-Beta{right:0}.seat{width:40%}.s-You{left:30%}.center{width:90%;top:50%}aside{max-height:200px}}
+@media(prefers-reduced-motion:reduce){.card{animation:none}}
+</style>
+</head>
+<body>
+<header><h1>♠ Hold'em Royale</h1><span id="hn"></span><button class="ghost" id="reset">New game</button></header>
+<main>
+  <div class="table" id="table">
+    <div class="center"><div class="pot" id="pot"></div><div class="board" id="board"></div><div class="msg" id="msg"></div></div>
+    <div class="seat s-Alpha" id="seat-Alpha"></div>
+    <div class="seat s-Beta" id="seat-Beta"></div>
+    <div class="seat s-You" id="seat-You"></div>
+  </div>
+  <aside><h3>Hand history</h3><ul id="log"></ul></aside>
+</main>
+<footer id="bar"></footer>
+<script>
+const $ = s => document.querySelector(s);
+const SUIT = {H:'♥',D:'♦',C:'♣',S:'♠'};
+const PERSONA = {Alpha:'🐺 Alpha', Beta:'🦉 Beta', You:'🙂 You'};
+const sid = localStorage.sid || (localStorage.sid = Math.random().toString(36).slice(2) + Date.now().toString(36));
+let S = null, timer = null;
+
+const card = c => c === '??' ? '<div class="card back"></div>'
+  : `<div class="card ${'HD'.includes(c[1]) ? 'red' : ''}"><span>${c[0]==='T'?'10':c[0]}</span><i>${SUIT[c[1]]}</i></div>`;
+const put = (el, html) => { if (el._h !== html) { el.innerHTML = html; el._h = html; } };
+
+async function api(path, body) {
+  const r = await fetch(path, {method: body === undefined ? 'GET' : 'POST',
+    headers: {'Content-Type': 'application/json', 'X-Session': sid},
+    body: body === undefined ? undefined : JSON.stringify(body)});
+  if (!r.ok) { if (path !== '/api/state') return api('/api/state'); return; }
+  S = await r.json(); render();
+}
+
+function render() {
+  $('#hn').textContent = `Hand ${S.hand_no} · ${S.street}`;
+  put($('#pot'), S.pot ? `<span class="chip"></span>Pot ${S.pot}` : '');
+  let b = S.board.map(card).join('');
+  for (let i = S.board.length; i < 5; i++) b += '<div class="slot"></div>';
+  put($('#board'), b);
+  const m = $('#msg');
+  m.className = 'msg' + (S.hand_over ? ' win' : '');
+  m.textContent = S.hand_over ? S.result : (S.to_act === 'You' ? 'Your move' : `${S.to_act} is thinking…`);
+
+  S.players.forEach(p => {
+    const el = $('#seat-' + p.name);
+    if (!el.firstChild) el.innerHTML = '<div class="cards"></div><div class="info"></div><div class="bet"></div>';
+    el.className = `seat s-${p.name}` + (S.to_act === p.name ? ' turn' : '') + (p.folded ? ' fold' : '')
+      + (p.winner ? ' win' : '') + (p.out ? ' out' : '');
+    const [c, i, bt] = el.children;
+    c.className = 'cards' + (p.name === 'You' ? '' : ' sm');
+    put(c, p.cards.map(card).join(''));
+    put(i, `<span class="nm">${PERSONA[p.name]}</span>${p.dealer ? '<span class="dealer">D</span>' : ''}<br>`
+      + `<span class="stk">${p.out ? 'busted' : p.stack}</span><span class="bubble">${p.folded ? 'folded' : p.allin && !p.last ? 'all-in' : p.last}</span>`);
+    put(bt, p.bet ? `<span class="chip"></span>${p.bet}` : '');
+  });
+  put($('#log'), S.log.slice().reverse().map(l => `<li>${l}</li>`).join(''));
+  renderBar();
+  clearTimeout(timer);
+  if (!S.hand_over && S.to_act && S.to_act !== 'You') timer = setTimeout(() => api('/api/step', {}), 1000);
+}
+
+function renderBar() {
+  const bar = $('#bar'), you = S.players[0];
+  if (S.over) return put(bar, `<button class="act next" id="again">Play again</button>`), $('#again').onclick = () => api('/api/reset', {});
+  if (S.hand_over) {
+    put(bar, `<button class="act next" id="next">Deal next hand</button>`);
+    return $('#next').onclick = () => api('/api/next', {});
+  }
+  if (S.to_act !== 'You') return put(bar, `<div class="hint">${S.label ? 'You hold: ' + S.label : ''}</div>`);
+  const key = [S.hand_no, S.street, S.cur, S.call, S.min_raise, S.max_raise].join();
+  if (bar._k === key) return;
+  bar._k = key;
+  const canRaise = S.max_raise > S.cur, verb = S.cur === 0 ? 'Bet' : 'Raise to';
+  bar.innerHTML = `<div class="hint">You hold: ${S.label}${S.call ? ` · ${S.call} to call` : ''}</div>
+    <button class="act fold" data-a="fold">Fold</button>
+    <button class="act call" data-a="${S.call ? 'call' : 'check'}">${S.call ? 'Call ' + S.call : 'Check'}</button>
+    ${canRaise ? `<div class="rz"><button class="q" data-f=".5">½ pot</button><button class="q" data-f="1">Pot</button><button class="q" data-f="9">All-in</button>
+      <input type="range" id="rs" min="${S.min_raise}" max="${S.max_raise}" step="5" value="${S.min_raise}"><output id="ro">${S.min_raise}</output>
+      <button class="act raise" id="rb">${verb} ${S.min_raise}</button></div>` : ''}`;
+  bar.querySelectorAll('[data-a]').forEach(b => b.onclick = () => api('/api/action', {action: b.dataset.a}));
+  if (!canRaise) return;
+  const rs = $('#rs'), upd = () => { $('#ro').textContent = rs.value; $('#rb').textContent = `${verb} ${rs.value}`; };
+  rs.oninput = upd;
+  $('#rb').onclick = () => api('/api/action', {action: 'raise', amount: +rs.value});
+  bar.querySelectorAll('[data-f]').forEach(b => b.onclick = () => {
+    const f = +b.dataset.f, to = f > 5 ? S.max_raise : S.your_bet + S.call + Math.round(f * (S.pot + S.call));
+    rs.value = Math.max(S.min_raise, Math.min(S.max_raise, to)); upd();
+  });
+}
+$('#reset').onclick = () => confirm('Start a new game with fresh chips?') && api('/api/reset', {});
+api('/api/state');
+</script>
+</body>
+</html>
