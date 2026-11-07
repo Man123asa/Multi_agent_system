@@ -1,0 +1,12 @@
+services:
+  poker:
+    build:
+      context: .
+      args:
+        INSTALL_LLM: "0"          # set "1" to enable LLM agents
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}   # leave empty for rule-based agents
+      - MODEL_NAME=gpt-4o-mini
+    restart: unless-stopped
